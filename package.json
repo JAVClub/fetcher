@@ -1,0 +1,29 @@
+{
+  "name": "fetcher",
+  "version": "0.0.1",
+  "description": "🔞 Data fetcher for JAVClub core",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JAVClub/fetcher.git"
+  },
+  "author": "XiaoLin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JAVClub/fetcher/issues"
+  },
+  "homepage": "https://github.com/JAVClub/fetcher#readme",
+  "dependencies": {
+    "dom-parser": "^0.1.6",
+    "dotenv": "^8.2.0",
+    "fs": "0.0.1-security",
+    "object-hash": "^2.0.1",
+    "path": "^0.12.7",
+    "querystring": "^0.2.0",
+    "request": "^2.88.0",
+    "simple-node-logger": "^18.12.23"
+  }
+}
