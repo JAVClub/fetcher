@@ -30,7 +30,8 @@ function compressImage(num, dir)
         });
 }
 
-function takeScreenshots(file, dir, num = 0) {
+function takeScreenshots(file, dir, num = 0, callback) {
+    log.debug(`Generating #${num} screenshot for video ${file}`);
     return new Promise((resolve) => {
         ffmpeg(file)
         .on("end", () => {
@@ -43,6 +44,7 @@ function takeScreenshots(file, dir, num = 0) {
                 compressImage(num + 1, dir).then(() => {
                     if (num == count - 1) {
                         log.info(`Taken ${num + 1} screenshots for ${file}`);
+                        callback();
                         resolve();
                     }
                 });

@@ -4,7 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const takeScreenshots = require('./modules/ffmpeg');
-const REGEX = /([a-zA-Z]+)[-_.]{0,2}(\d+)[-_.]{0,2}((CD)?[-_.]?([A-F1-9])){0,1}/gmi;
+const objHash = require('object-hash');
 const CONFIG = require('./modules/config');
 
 let qb = new qBittorrent(CONFIG['host'],CONFIG['username'],CONFIG['password']);
@@ -35,14 +35,13 @@ const update = () => {
 
 const startProcess = (hash, savePath) => {
     qb.getTorrentContent(hash).then((contents) => {
-        // qb.deleteTorrent(hash);
+        qb.deleteTorrent(hash);
         contents = JSON.parse(contents.body);
 
         let files = [];
         contents.forEach((file) => files[files.length] = path.join(savePath, file['name']));
         log.debug(`File list: ${JSON.stringify(files)}`);
 
-        fs.writeFileSync('data.json',JSON.stringify(files));
         files.forEach((file) => {
             log.info('Staring process for ' + hash);
             singleProcess(file);
@@ -51,9 +50,17 @@ const startProcess = (hash, savePath) => {
 };
 
 const singleProcess = (filename) => {
-    let regexResult = REGEX.exec(path.basename(filename));
+    if (!fs.existsSync(filename))
+    {
+        log.error(`File ${filename} not exists`);
+        return;
+    }
+    let regex = /([a-zA-Z]+)[-_.]{0,2}(\d+)[-_.]{0,2}((CD)?[-_.]?([A-F1-9])){0,1}/gmi;
+    let regexResult = regex.exec(path.basename(filename).split('.')[0]);
 
-    if (!regexResult[1] || !regexResult[2])
+    log.debug(JSON.stringify(regexResult));
+
+    if (!regexResult || !regexResult[1] || !regexResult[2])
     {
         log.error('CANNOT detect JAV ID for ' + filename);
         return;
@@ -75,31 +82,26 @@ const singleProcess = (filename) => {
 
     log.debug('Video info: ' + JSON.stringify(videoInfo));
 
-    let stream = fs.createReadStream(filename);
-    let fsHash = crypto.createHash('sha1');
-
-    stream.on('data', function(d) {
-        fsHash.update(d);
-    })
-    .on('end', function() {
-        let sha = fsHash.digest('hex');
-        videoInfo['hash'] = sha;
+    let sha = objHash(fs.statSync(filename));
+    videoInfo['hash'] = sha;
+    log.debug('Video hash: ' + sha);
         
-        let dir = './cache/modified/' + sha;
-        if (!fs.existsSync(dir))
-        {
-            log.info('Making foloder ' + dir);
-            fs.mkdirSync(dir);
-        }
+    let dir = './cache/modified/' + sha;
+    if (!fs.existsSync(dir))
+    {
+        log.info('Making foloder ' + dir);
+        fs.mkdirSync(dir);
+    }
 
-        fs.renameSync(filename, filename = path.join(dir, sha, path.extname));
-        fs.writeFileSync(path.join(dir, 'info.json'), JSON.stringify(videoInfo));
-        takeScreenshots(filename, path.join(dir, 'storyboard/')).then(() => {
-            let finalDir = path.join('./cache/sync/', 
-            `${sha.substr(0, 2)}/`, `${sha.substr(-2, 2)}/`, `${sha}/`);
-            fs.mkdirSync(finalDir, { recursive: true });
-            fs.renameSync(dir, finalDir);
-        });
+    fs.renameSync(filename, filename = path.join(dir, 'video' + path.extname(filename)));
+    fs.writeFileSync(path.join(dir, 'info.json'), JSON.stringify(videoInfo));
+
+    takeScreenshots(filename, path.join(dir, 'storyboard/'), () => {
+        let finalDir = path.join('./cache/sync/', 
+       `${sha.substr(0, 2)}/`, `${sha.substr(-2, 2)}/`, `${sha}/`);
+       log.info('Moving video to synv foloder');
+        fs.mkdirSync(finalDir, { recursive: true });
+        fs.renameSync(dir, finalDir);
     });
 }
 

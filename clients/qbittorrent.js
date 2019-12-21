@@ -137,7 +137,7 @@ class qbittorrent {
     deleteTorrent(hash)
     {
         log.info('Deleting torrent ' + hash);
-        return this.postRequestPromise('/command/delete', querystring.stringify({hashes: hash}));  
+        return this.postRequestPromise('/command/delete', '', 'multipart/form-data', {hashes: hash});  
     }
 }
 
