@@ -125,13 +125,13 @@ class qbittorrent {
     pauseTorrent(hash)
     {
         log.info('Pausing torrent ' + hash);
-        return this.postRequestPromise('/command/pause', querystring.stringify({hash: hash}));      
+        return this.postRequestPromise('/command/pause', '', 'multipart/form-data', {hash: hash});      
     }
 
     resumeTorrent(hash)
     {
         log.info('Resuming torrent ' + hash);
-        return this.postRequestPromise('/command/resume', querystring.stringify({hash: hash}));  
+        return this.postRequestPromise('/command/resume', '', 'multipart/form-data', {hash: hash});  
     }
 
     deleteTorrent(hash)
