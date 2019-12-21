@@ -40,7 +40,7 @@ const startProcess = (hash, savePath) => {
 
         let files = [];
         contents.forEach((file) => files[files.length] = path.join(savePath, file['name']));
-        log.debug(`File list: ${JSON.parse(files)}`);
+        log.debug(`File list: ${JSON.stringify(files)}`);
 
         fs.writeFileSync('data.json',JSON.stringify(files));
         files.forEach((file) => {
@@ -72,6 +72,8 @@ const singleProcess = (filename) => {
                    'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E', 'F': 'F'};
         videoInfo['episode'] = map[regexResult[5]];
     }
+
+    log.debug('Video info: ' + JSON.stringify(videoInfo));
 
     let stream = fs.createReadStream(filename);
     let fsHash = crypto.createHash('sha1');
