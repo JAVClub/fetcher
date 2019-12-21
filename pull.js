@@ -32,6 +32,7 @@ const update = () => {
             }
         });
         log.info('Added', newNum, 'torrents');
+        clearInterval(db.intervalId);
     });
 };
 
