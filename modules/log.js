@@ -1,6 +1,6 @@
-const log = require('simple-node-logger').createSimpleLogger();
+const log = require('log4js').getLogger();
 const CONFIG = require('./config');
 
-log.setLevel(CONFIG['logLevel']);
+log.level = CONFIG['logLevel'];
 
 module.exports = log;

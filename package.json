@@ -21,11 +21,11 @@
     "dotenv": "^8.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
+    "log4js": "^6.1.0",
     "object-hash": "^2.0.1",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
     "request": "^2.88.0",
-    "sharp": "^0.23.4",
-    "simple-node-logger": "^18.12.23"
+    "sharp": "^0.23.4"
   }
 }
