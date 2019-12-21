@@ -133,6 +133,12 @@ class qbittorrent {
         log.info('Resuming torrent ' + hash);
         return this.postRequestPromise('/command/resume', querystring.stringify({hash: hash}));  
     }
+
+    deleteTorrent(hash)
+    {
+        log.info('Deleting torrent ' + hash);
+        return this.postRequestPromise('/command/delete', querystring.stringify({hashes: hash}));  
+    }
 }
 
 module.exports = qbittorrent;
