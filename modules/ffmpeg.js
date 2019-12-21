@@ -21,6 +21,7 @@ if (!timestamps.length) {
 
 function compressImage(num, dir)
 {
+    log.debug('Compressing screenshot', path.join(dir, `${num}.png`));
     return sharp(path.join(dir, `${num}.png`))
         .resize({ width: 1080 })
         .webp({ nearLossless: true })

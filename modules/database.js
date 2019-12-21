@@ -10,6 +10,7 @@ if (!fs.existsSync(dbPath))
     fs.appendFileSync(dbPath,'[]');
 }
 
+log.info('Loading data from disk file');
 let data = fs.readFileSync(dbPath);
 data = JSON.parse(data);
 

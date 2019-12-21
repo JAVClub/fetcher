@@ -25,7 +25,7 @@ class qbittorrent {
                 if (error)
                     reject(error);
 
-                log.debug('GET Body: ' + body);
+                log.debug('GET Body: ', body);
                 resolve(response);
             });
         });
@@ -49,16 +49,15 @@ class qbittorrent {
             {
                 data.formData = formData;
                 delete data.body;
-                log.debug('POST Form Data: ' + JSON.stringify(formData));
             }
 
-            log.debug('POST Data: ' + JSON.stringify(data));
+            log.debug('POST Data: ', data);
 
             request(data,(error, response, body) => {
                 if (error)
                     reject(error);
 
-                log.debug('POST Body: ' + body);
+                log.debug('POST Body: ', body);
                 resolve(response);
             });
         });
@@ -73,6 +72,7 @@ class qbittorrent {
                 },
                 body: 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password)
             },(error, response) => {
+                log.debug('Auth body:', response.body);
                 if (response.body == 'Ok.')
                 {
                     response.headers['set-cookie'].forEach((item) => 

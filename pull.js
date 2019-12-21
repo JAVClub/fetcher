@@ -11,6 +11,7 @@ let qb = new qBittorrent(CONFIG['host'],CONFIG['username'],CONFIG['password']);
 const update = () => {
     log.info('Fetching new JAV...');
     one.getPageJAV('new').then((data) => {
+        let newNum = 0;
         log.debug(JSON.stringify(data));
         log.info('Fetched ' + data.length + ' JAV');
 
@@ -18,6 +19,7 @@ const update = () => {
             let objHash = hash(JAV);
             if (!db.isDownloaded(objHash))
             {
+                newNum += 1;
                 qb.addTorrentLink(JAV.link).then((response) => {
                     if (response.body.indexOf('Ok') == -1)
                     {
@@ -29,10 +31,10 @@ const update = () => {
                 });
             }
         });
+        log.info('Added', newNum, 'torrents');
     });
 };
 
 setTimeout(update, 5000);
 
 setInterval(update, 5 * 60000);
-

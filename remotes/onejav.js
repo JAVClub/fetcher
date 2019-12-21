@@ -28,7 +28,6 @@ class onejav
                     log.warning(error.toString());
                     reject(error);
                 }
-                log.debug('OneJAV page: ' + body);
 
                 let dom = parser.parseFromString(body);
 

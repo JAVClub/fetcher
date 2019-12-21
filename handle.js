@@ -25,7 +25,7 @@ const update = () => {
 
             if (torrent['state'] == 'uploading' && torrent['ratio'] >= CONFIG['ratio'])
             {
-                log.info('Starting handling process of torrent ' + torrent['hash']);
+                log.info('Starting handling process of torrent', torrent['hash']);
                 startProcess(torrent['hash'], torrent['save_path']);
             }
         });
@@ -39,10 +39,10 @@ const startProcess = (hash, savePath) => {
 
         let files = [];
         contents.forEach((file) => files[files.length] = path.join(savePath, file['name']));
-        log.debug(`File list: ${JSON.stringify(files)}`);
+        log.debug('File list: ', files);
 
         files.forEach((file) => {
-            log.info('Staring process for ' + hash);
+            log.info('Staring process for', hash);
             singleProcess(file);
         })
     });
@@ -57,11 +57,11 @@ const singleProcess = (filename) => {
     let regex = /([a-zA-Z]+)[-_.]{0,2}(\d+)[-_.]{0,2}((CD)?[-_.]?([A-F1-9])){0,1}/gmi;
     let regexResult = regex.exec(path.basename(filename).split('.')[0]);
 
-    log.debug(JSON.stringify(regexResult));
+    log.debug(regexResult);
 
     if (!regexResult || !regexResult[1] || !regexResult[2])
     {
-        log.error('CANNOT detect JAV ID for ' + filename);
+        log.error('CANNOT detect JAV ID for', filename);
         return;
     }
 
@@ -79,26 +79,28 @@ const singleProcess = (filename) => {
         videoInfo['episode'] = map[regexResult[5]];
     }
 
-    log.debug('Video info: ' + JSON.stringify(videoInfo));
+    log.debug('Video info:', videoInfo);
 
     let sha = objHash(fs.statSync(filename));
     videoInfo['hash'] = sha;
-    log.debug('Video hash: ' + sha);
+    log.debug('Video hash:', sha);
         
     let dir = './cache/modified/' + sha;
     if (!fs.existsSync(dir))
     {
-        log.info('Making foloder ' + dir);
+        log.info('Making foloder', dir);
         fs.mkdirSync(dir);
     }
 
+    log.info('Move to modified foloder');
     fs.renameSync(filename, filename = path.join(dir, 'video' + path.extname(filename)));
     fs.writeFileSync(path.join(dir, 'info.json'), JSON.stringify(videoInfo));
 
+    log.info('Started to generate screenshots for', file);
     takeScreenshots(filename, path.join(dir, 'storyboard/'), () => {
         let finalDir = path.join('./cache/sync/', 
        `${sha.substr(0, 2)}/`, `${sha.substr(-2, 2)}/`, `${sha}/`);
-       log.info('Moving video to synv foloder');
+       log.info('Moving', dir, 'to sync foloder');
         fs.mkdirSync(finalDir, { recursive: true });
         fs.renameSync(dir, finalDir);
     });
