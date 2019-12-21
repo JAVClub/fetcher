@@ -13,8 +13,7 @@ const update = () => {
     qb.getTorrentList().then((response) => {
         if (response.statusCode != 200)
             return;
-        // log.debug(response.body);
-        fs.writeFileSync('data.json',response.body);
+        log.debug(response.body);
 
         let list = JSON.parse(response.body);
         list.forEach((torrent) => {
