@@ -10,7 +10,7 @@ let qb = new qBittorrent(CONFIG['host'],CONFIG['username'],CONFIG['password']);
 
 const update = () => {
     log.info('Fetching new JAV...');
-    one.getPageJAV('new').then((data) => {
+    one.getPageJAV(`new?page=${Math.floor(Math.random() * 5) + 1}`).then((data) => {
         let newNum = 0;
         log.debug(JSON.stringify(data));
         log.info('Fetched ' + data.length + ' JAV');
