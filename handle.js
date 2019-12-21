@@ -1,10 +1,10 @@
 const qBittorrent = require('./clients/qbittorrent');
 const log = require('./modules/log');
 const fs = require('fs');
-const crypto = require('crypto');
 const path = require('path');
 const takeScreenshots = require('./modules/ffmpeg');
 const objHash = require('object-hash');
+const ffmpeg = require("fluent-ffmpeg");
 const CONFIG = require('./modules/config');
 
 let qb = new qBittorrent(CONFIG['host'],CONFIG['username'],CONFIG['password']);
@@ -42,18 +42,41 @@ const startProcess = (hash, savePath) => {
         log.debug('File list: ', files);
 
         files.forEach((file) => {
-            log.info('Staring process for', hash);
-            singleProcess(file);
+            if (!fs.existsSync(file))
+            {
+                log.error(`File ${file} not exists`);
+                return;
+            }
+
+            log.info('Getting metadata of', file);
+            ffmpeg.ffprobe('./cache/tmp/MUDR-086.mp4', (error, metadata) => {
+                metadata = metadata['streams'];
+                let videoMetadata = {
+                    video: {
+                        width: metadata[0]['width'],
+                        height: metadata[0]['height'],
+                        codec: metadata[0]['codec_name'],
+                        duration: Math.round(metadata[0]['duration']),
+                        bitRate: metadata[0]['bit_rate'],
+                        fps: Math.round(metadata[0]['nb_frames'] / metadata[0]['duration']),
+                    },
+                    audio: {
+                        codec: metadata[1]['codec_name'],
+                        duration: Math.round(metadata[1]['duration']),
+                        bitRate: metadata[1]['bit_rate'],
+                        channels: metadata[1]['channels'],
+                    },
+                };
+            
+                log.info('Staring process for', hash);
+                singleProcess(file,videoMetadata);
+            });
+
         })
     });
 };
 
-const singleProcess = (filename) => {
-    if (!fs.existsSync(filename))
-    {
-        log.error(`File ${filename} not exists`);
-        return;
-    }
+const singleProcess = (filename, videoMetadata) => {
     let regex = /([a-zA-Z]+)[-_.]{0,2}(\d+)[-_.]{0,2}((CD)?[-_.]?([A-F1-9])){0,1}/gmi;
     let regexResult = regex.exec(path.basename(filename).split('.')[0]);
 
@@ -69,7 +92,8 @@ const singleProcess = (filename) => {
         JAVID: regexResult[1].toUpperCase() + regexResult[2],
         company: regexResult[1].toUpperCase(),
         id: regexResult[2],
-        episode: 'A'
+        episode: 'A',
+        metadata: videoMetadata,
     };
 
     if (regexResult[5] && regexResult[5].length == 1)
