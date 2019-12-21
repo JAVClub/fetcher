@@ -36,5 +36,3 @@ const update = () => {
 };
 
 setTimeout(update, 5000);
-
-setInterval(update, 5 * 60000);
