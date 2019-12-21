@@ -96,7 +96,7 @@ const singleProcess = (filename) => {
     fs.renameSync(filename, filename = path.join(dir, 'video' + path.extname(filename)));
     fs.writeFileSync(path.join(dir, 'info.json'), JSON.stringify(videoInfo));
 
-    log.info('Started to generate screenshots for', file);
+    log.info('Started to generate screenshots for', filename);
     takeScreenshots(filename, path.join(dir, 'storyboard/'), () => {
         let finalDir = path.join('./cache/sync/', 
        `${sha.substr(0, 2)}/`, `${sha.substr(-2, 2)}/`, `${sha}/`);
