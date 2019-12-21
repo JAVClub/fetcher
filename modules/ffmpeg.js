@@ -39,7 +39,7 @@ function takeScreenshots(file, dir, num = 0, callback) {
             if (num < count) {
                 if (num + 1 != count)
                 {
-                    takeScreenshots(file, dir, num + 1);
+                    takeScreenshots(file, dir, num + 1, callback);
                 }
                 
                 compressImage(num + 1, dir).then(() => {
