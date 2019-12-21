@@ -17,7 +17,7 @@ const update = () => {
 
         let list = JSON.parse(response.body);
         list.forEach((torrent) => {
-            if (['uploading', 'downloading'].indexOf(torrent['state']) == -1)
+            if (['uploading', 'downloading', 'queuedDL'].indexOf(torrent['state']) == -1)
             {
                 qb.resumeTorrent(torrent['hash']);
                 return;
