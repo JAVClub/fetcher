@@ -97,7 +97,7 @@ const singleProcess = (filename) => {
     fs.writeFileSync(path.join(dir, 'info.json'), JSON.stringify(videoInfo));
 
     log.info('Started to generate screenshots for', filename);
-    takeScreenshots(filename, path.join(dir, 'storyboard/'), () => {
+    takeScreenshots(filename, path.join(dir, 'storyboard/'),0 , () => {
         let finalDir = path.join('./cache/sync/', 
        `${sha.substr(0, 2)}/`, `${sha.substr(-2, 2)}/`, `${sha}/`);
        log.info('Moving', dir, 'to sync foloder');
