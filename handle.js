@@ -49,7 +49,7 @@ const startProcess = (hash, savePath) => {
             }
 
             log.info('Getting metadata of', file);
-            ffmpeg.ffprobe('./cache/tmp/MUDR-086.mp4', (error, metadata) => {
+            ffmpeg.ffprobe(file, (error, metadata) => {
                 metadata = metadata['streams'];
                 let videoMetadata = {
                     video: {
