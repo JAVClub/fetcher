@@ -92,24 +92,24 @@ class qbittorrent {
     getTorrentList()
     {
         log.info('Getting torrent list');
-        return this.getRequestPromise('/query/torrents?limit=1000&category=JAVClub');
+        return this.getRequestPromise('/api/v2/torrents/info?limit=1000&category=JAVClub');
     }
 
     getTorrentInfo(hash)
     {
         log.info('Getting torrent ' + hash + ' info');
-        return this.getRequestPromise('/query/propertiesGeneral/' + hash);
+        return this.getRequestPromise('/api/v2/torrents/properties?hash=' + hash);
     }
 
     getTorrentContent(hash)
     {
         log.info('Getting torrent ' + hash + ' content');
-        return this.getRequestPromise('/query/propertiesFiles/' + hash);
+        return this.getRequestPromise('/api/v2/torrents/files?hash=' + hash);
     }
 
     addTorrentLink(url)
     {
-        return this.postRequestPromise('/command/download', '','multipart/form-data',{
+        return this.postRequestPromise('/api/v2/torrents/add', '','multipart/form-data',{
             urls: url,
             category: 'JAVClub',
             upLimit: CONFIG['upLimit']
@@ -119,25 +119,26 @@ class qbittorrent {
     addNewCategory(name)
     {
         log.info('Adding category ' + name);
-        return this.postRequestPromise('/command/addCategory', querystring.stringify({category: name}));
+        return this.postRequestPromise('/api/v2/torrents/createCategory', 
+        '', 'application/x-www-form-urlencoded', {category: name, savePath: name});
     }
 
     pauseTorrent(hash)
     {
         log.info('Pausing torrent ' + hash);
-        return this.postRequestPromise('/command/pause', '', 'multipart/form-data', {hash: hash});      
+        return this.postRequestPromise('/api/v2/torrents/pause', '', 'application/x-www-form-urlencoded', {hashes: hash});      
     }
 
     resumeTorrent(hash)
     {
         log.info('Resuming torrent ' + hash);
-        return this.postRequestPromise('/command/resume', '', 'multipart/form-data', {hash: hash});  
+        return this.postRequestPromise('/api/v2/torrents/resume', '', 'application/x-www-form-urlencoded', {hashes: hash});  
     }
 
     deleteTorrent(hash)
     {
         log.info('Deleting torrent ' + hash);
-        return this.postRequestPromise('/command/delete', '', 'multipart/form-data', {hashes: hash});  
+        return this.postRequestPromise('/api/v2/torrents/delete', '', 'application/x-www-form-urlencoded', {hashes: hash, deleteFiles: 'false'});  
     }
 }
 
