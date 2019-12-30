@@ -3,10 +3,6 @@ const path = require('path');
 const appDir = path.dirname(require.main.filename);
 const log = require('./../modules/log');
 const dbPath = appDir + '/database/torrents.json';
-const saveDb = () => {
-    // log.debug('Saving DB to the disk');
-    fs.writeFileSync(dbPath,JSON.stringify(data));
-};
 
 if (!fs.existsSync(dbPath))
 {
@@ -17,8 +13,6 @@ if (!fs.existsSync(dbPath))
 log.info('Loading data from disk file');
 let data = fs.readFileSync(dbPath);
 data = JSON.parse(data);
-
-let intervalId = setInterval(saveDb, 1000);
 
 module.exports = {
     isDownloaded(hash)
@@ -31,7 +25,11 @@ module.exports = {
     markAsDownloaded(hash)
     {
         data[data.length] = hash;
+        this.saveDb();
     },
 
-    intervalId,
+    saveDb()
+    {
+        fs.writeFileSync(dbPath,JSON.stringify(data));
+    }
 };
