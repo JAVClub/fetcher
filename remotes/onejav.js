@@ -25,7 +25,7 @@ class onejav
             },(error, response, body) => {
                 if (error || response.statusCode != 200)
                 {
-                    log.warning(error.toString());
+                    log.warn(error);
                     reject(error);
                 }
 
