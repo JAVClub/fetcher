@@ -78,7 +78,8 @@ const startProcess = (hash, savePath) => {
 
 const singleProcess = (filename, videoMetadata) => {
     let regex = /([a-zA-Z]+)[-_.]{0,2}(\d+)[-_.]{0,2}((CD)?[-_.]?([A-F1-9])){0,1}/gmi;
-    let regexResult = regex.exec(path.basename(filename).split('.')[0]);
+    let basename = path.basename(filename);
+    let regexResult = regex.exec(basename.replace('.' + basename.split('.')[basename.split('.').length - 1], ''));
 
     log.debug(regexResult);
 
