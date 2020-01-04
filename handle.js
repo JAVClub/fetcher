@@ -48,8 +48,19 @@ const startProcess = (hash, savePath) => {
                 return;
             }
 
+            if (!file.endsWith('.mp4'))
+            {
+                log.debug(`File ${file} is not a vaild mp4 file.`);
+                return;
+            }
+
             log.info('Getting metadata of', file);
             ffmpeg.ffprobe(file, (error, metadata) => {
+                if (error)
+                {
+                    log.error(error);
+                }
+
                 metadata = metadata['streams'];
                 let videoMetadata = {
                     video: {
