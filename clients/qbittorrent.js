@@ -92,7 +92,7 @@ class qbittorrent {
     getTorrentList()
     {
         log.info('Getting torrent list');
-        return this.getRequestPromise('/api/v2/torrents/info?limit=1000&category=JAVClub');
+        return this.getRequestPromise('/api/v2/torrents/info?limit=' + CONFIG['handlerQueueNum'] + '&category=JAVClub&sort=completion_on&reverse=true');
     }
 
     getTorrentInfo(hash)
