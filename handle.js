@@ -17,13 +17,13 @@ const update = () => {
 
         let list = JSON.parse(response.body);
         list.forEach((torrent) => {
-            if (['uploading', 'downloading', 'queuedDL', 'queuedUP'].indexOf(torrent['state']) == -1)
+            if (['uploading', 'downloading', 'queuedDL', 'queuedUP', 'stalledUP'].indexOf(torrent['state']) == -1)
             {
                 qb.resumeTorrent(torrent['hash']);
                 return;
             }
 
-            if ((['uploading', 'queuedUP'].indexOf(torrent['state']) != -1) && torrent['ratio'] >= CONFIG['ratio'])
+            if ((['uploading', 'queuedUP', 'stalledUP'].indexOf(torrent['state']) != -1) && torrent['ratio'] >= CONFIG['ratio'])
             {
                 log.info('Starting handling process of torrent', torrent['hash']);
                 startProcess(torrent['hash'], torrent['save_path']);
