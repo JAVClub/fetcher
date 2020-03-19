@@ -33,10 +33,15 @@ function compressImage(num, dir)
 
 function takeScreenshots(file, dir, num = 0, callback) {
     log.debug(`Generating #${num} screenshot for video ${file}`);
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         ffmpeg(file)
         .on("end", () => {
             if (num < count) {
+                if (!fs.existsSync(path.join(dir, `${num + 1}.png`)))
+                {
+                    reject(`Screenshot ${num + 1} not found`);
+                }
+
                 if (num + 1 != count)
                 {
                     takeScreenshots(file, dir, num + 1, callback);

@@ -139,6 +139,10 @@ const singleProcess = (filename, videoMetadata) => {
        log.info('Moving', dir, 'to sync foloder');
         fs.mkdirSync(finalDir, { recursive: true });
         fs.renameSync(dir, finalDir);
+    }).catch((reason) => {
+        log.error(reason);
+        fs.unlinkSync(dir);
+        return;
     });
 }
 
