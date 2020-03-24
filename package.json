@@ -22,7 +22,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
     "log4js": "^6.1.0",
-    "object-hash": "^2.0.1",
+    "object-hash": "^2.0.3",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
     "request": "^2.88.0",
