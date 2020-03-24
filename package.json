@@ -25,7 +25,7 @@
     "object-hash": "^2.0.1",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "sharp": "^0.23.4"
   }
 }
