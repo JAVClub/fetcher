@@ -27,7 +27,10 @@ const runAndSetInterval = async (fn, time, name, handle = true) => {
         logger.error(`[${name}] Job threw an error`, error)
     }
     logger.info(`[${name}] Job finished, setting timer`)
-    setTimeout(fn, time * 1000)
+    
+    setTimeout(() => {
+        runAndSetInterval(fn, time, name, handle)
+    }, time * 1000)
 }
 
 const contentHandler = async () => {
@@ -49,6 +52,8 @@ const contentHandler = async () => {
         const JAVID = item.JAVID
         const size = item.size
         const hash = item.hash
+
+        logger.info(`Handling ${JAVID}, hash ${hash}`)
 
         if (size > 10) {
             logger.info(`[${JAVID}] File oversize, skipped`)
@@ -101,6 +106,7 @@ const contentHandler = async () => {
             })
         }
 
+        logger.debug(`[${JAVID}] Parsing torrent info`)
         const torrentInfo = parseTorrent(fs.readFileSync(torrentFilePath))
         if (!torrentInfo.files) {
             logger.warn(`[${JAVID}] Torrent invalid, skipped`)
@@ -109,6 +115,7 @@ const contentHandler = async () => {
 
         let videoFileCount = 0
 
+        logger.debug(`[${JAVID}] Torrent files`, torrentInfo.files)
         for (const index in torrentInfo.files) {
             const fileInfo = torrentInfo.files[index]
 
@@ -122,6 +129,7 @@ const contentHandler = async () => {
             continue
         }
 
+        logger.debug(`[${JAVID}] Adding to qbittorrent`)
         await qb.addTorrentLink(torrentURL)
 
         db.get('processed').push({

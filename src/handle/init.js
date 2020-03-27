@@ -15,7 +15,10 @@ const runAndSetInterval = async (fn, time) => {
         logger.error(`[Check torrent status] Job threw an error`, error)
     }
     logger.info(`[Check torrent status] Job finished, setting timer`)
-    setTimeout(fn, time * 1000)
+    
+    setTimeout(() => {
+        runAndSetInterval(fn, time)
+    }, time * 1000)
 }
 
 const process = async () => {
