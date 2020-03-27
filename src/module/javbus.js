@@ -100,13 +100,16 @@ module.exports = async (JAVID) => {
         }
     }
 
-    const s = dom.getElementById('sample-waterfall').getElementsByTagName('a')
-    for (const i in s) {
-        const item = s[i]
-        console.log(item.attributes)
-        if (item.attributes[1]) data.screenshots.push(item.attributes[1].value)
+    let s = dom.getElementById('sample-waterfall')
+    if (s) {
+        s = s.getElementsByTagName('a')
+        for (const i in s) {
+            const item = s[i]
+            console.log(item.attributes)
+            if (item.attributes[1]) data.screenshots.push(item.attributes[1].value)
+        }
     }
-
+    
     logger.debug(JAVID, data)
 
     if (!data || !data.tags.length || !data.stars.length) {
