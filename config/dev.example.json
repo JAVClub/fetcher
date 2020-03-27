@@ -1,7 +1,6 @@
 {
     "system": {
-        "logLevel": "debug",
-        "savePath": "/data/torrent/qbittorrent/downlaods"
+        "logLevel": "debug"
     },
     "remote": [
         {

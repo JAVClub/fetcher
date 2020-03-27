@@ -48,7 +48,7 @@ const process = async () => {
                 break
             }
         }
-        const filePath = config.get('system.savePath') + '/' + videoFileInfo.name
+        const filePath = item.save_path + videoFileInfo.name
 
         const videoMetadata = await new Promise((resolve, reject) => {
             ffmpeg.ffprobe(filePath, (error, metadata) => {
