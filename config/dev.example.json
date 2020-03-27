@@ -1,6 +1,7 @@
 {
     "system": {
-        "logLevel": "debug"
+        "logLevel": "debug",
+        "savePath": "/data/torrent/qbittorrent/downlaods"
     },
     "remote": [
         {
@@ -9,6 +10,11 @@
             "url": "https://pt.m-team.cc/torrentrss.php?https=1&rows=50&cat410=1&isize=1&search=-&search_mode=1&linktype=dl&passkey=yourkeyhere"
         }
     ],
+    "qbittorrent": {
+        "baseURL": "http://127.0.0.1:8080",
+        "username": "admin",
+        "password": "adminadmin"
+    },
     "handler": {
         "queueNum": 5
     }
