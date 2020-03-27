@@ -1,6 +1,8 @@
 const _ = require('lodash')
 const fs = require('fs')
 const fetch = require('node-fetch')
+const pRetry = require('p-retry')
+const javbus = require('./../module/javbus')
 const config = require('./../module/config')
 const qb = require('./../module/qbittorrent')
 const db = require('./../module/database')
@@ -57,10 +59,37 @@ const contentHandler = async () => {
             continue
         }
 
+        if (!db.get('metadatas').find({ JAVID }).value()) {
+            const JAVinfo = await javbus(JAVID)
+            if (!JAVinfo) {
+                logger.warn(`[${JAVID}] JAV info invalid, skipped`)
+                continue
+            }
+    
+            JAVinfo.JAVID = JAVID
+    
+            db.get('metadatas').push(JAVinfo).write()
+        }
+
         const torrentFilePath = `${tmpFolder}/${hash}.torrent`
 
         if (!fs.existsSync(torrentFilePath)) {
-            const res = await fetch(torrentURL)
+            const res = await pRetry(async () => {
+                const res = await fetch(torrentURL)
+        
+                return res
+            }, {
+                onFailedAttempt: async (error) => {
+                    logger.error(`Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left`)
+        
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve()
+                        }, 10000)
+                    })
+                },
+                retries: 5
+            })
 
             await new Promise((resolve, reject) => {
                 const fileStream = fs.createWriteStream(torrentFilePath + '.tmp');
@@ -104,6 +133,8 @@ const contentHandler = async () => {
         }).write()
     }
 }
+
+contentHandler()
 
 const driverRSS = require('./driver/rss')
 const driverStack = []
