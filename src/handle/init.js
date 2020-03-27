@@ -18,10 +18,6 @@ const runAndSetInterval = async (fn, time) => {
     setTimeout(fn, time * 1000)
 }
 
-runAndSetInterval(async () => {
-    await process()
-}, 60)
-
 const process = async () => {
     const torrentList = await qb.getTorrentList()
 
@@ -106,3 +102,7 @@ const process = async () => {
         db.get('downloaded').push({ hash }).write()
     }
 }
+
+runAndSetInterval(async () => {
+    await process()
+}, 60)

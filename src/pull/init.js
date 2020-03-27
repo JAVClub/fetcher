@@ -30,10 +30,6 @@ const runAndSetInterval = async (fn, time, name, handle = true) => {
     setTimeout(fn, time * 1000)
 }
 
-runAndSetInterval(async () => {
-    await contentHandler()
-}, 60, 'Download queue', false)
-
 const contentHandler = async () => {
     const dbContent = db.get('contents').value()
     const downloaded = db.get('downloaded').value()
@@ -134,7 +130,9 @@ const contentHandler = async () => {
     }
 }
 
-contentHandler()
+runAndSetInterval(async () => {
+    await contentHandler()
+}, 60, 'Download queue', false)
 
 const driverRSS = require('./driver/rss')
 const driverStack = []

@@ -16,10 +16,7 @@ class RSS {
     }
 
     async run () {
-        // const rssContent = await this.fetchContent()
-
-        const fs = require('fs')
-        const rssContent = JSON.parse(fs.readFileSync('./1.json'))
+        const rssContent = await this.fetchContent()
 
         switch (this._type) {
             case 'MT':
