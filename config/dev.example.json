@@ -10,7 +10,7 @@
         }
     ],
     "qbittorrent": {
-        "baseURL": "http://127.0.0.1:8080",
+        "baseURL": "http://qbittorrent:8585",
         "username": "admin",
         "password": "adminadmin"
     },

@@ -105,5 +105,3 @@ dist
 
 test.*
 .vscode/
-
-config/dev.json
