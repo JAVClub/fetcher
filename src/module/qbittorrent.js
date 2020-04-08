@@ -150,13 +150,13 @@ class Qbittorrent {
         return result
     }
 
-    async deleteTorrent(hash) {
+    async deleteTorrent(hash, deleteFiles = false) {
         logger.info('Deleting torrent ' + hash)
 
         const uri = '/api/v2/torrents/delete'
         const body = new URLSearchParams()
         body.append('hashes', hash)
-        body.append('deleteFiles', 'false')
+        body.append('deleteFiles', (deleteFiles) ? 'true' : 'false')
 
         const result = await this.sendRequest(uri, {
             method: 'POST',

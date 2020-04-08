@@ -31,6 +31,17 @@ const process = async () => {
         const JAVcontent = db.get('contents').find({ hash }).value()
         logger.debug('JAV torrent content', JAVcontent)
 
+        if (!JAVcontent) {
+            logger.error(`Torrent info not found`)
+
+            logger.debug(`Deleting torrent ${hash}`)
+            await qb.deleteTorrent(hash, true)
+
+            db.get('downloaded').push({ hash }).write()
+
+            continue
+        }
+
         const JAVinfo = db.get('metadatas').find({ JAVID: JAVcontent.JAVID }).value()
         if (!JAVinfo) {
             logger.error(`[${JAVcontent.JAVID}] JAV info not found`)
