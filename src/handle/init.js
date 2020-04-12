@@ -65,7 +65,7 @@ const process = async () => {
         try {
             videoMetadata = await new Promise((resolve, reject) => {
                 ffmpeg.ffprobe(filePath, (error, metadata) => {
-                    if (error)
+                    if (error || !metadata)
                     {
                         reject(error)
                     }
