@@ -60,35 +60,42 @@ const process = async () => {
         }
         const filePath = item.save_path + videoFileInfo.name
 
-        const videoMetadata = await new Promise((resolve, reject) => {
-            ffmpeg.ffprobe(filePath, (error, metadata) => {
-                if (error)
-                {
-                    logger.error(error)
-                    reject(error)
-                }
-    
-                metadata = metadata['streams']
-                const videoMetadata = {
-                    video: {
-                        width: metadata[0]['width'],
-                        height: metadata[0]['height'],
-                        codec: metadata[0]['codec_name'],
-                        duration: Math.round(metadata[0]['duration']),
-                        bitRate: metadata[0]['bit_rate'],
-                        fps: parseFloat(metadata[0]['nb_frames'] / metadata[0]['duration']).toFixed(2),
-                    },
-                    audio: {
-                        codec: metadata[1]['codec_name'],
-                        duration: Math.round(metadata[1]['duration']),
-                        bitRate: metadata[1]['bit_rate'],
-                        channels: metadata[1]['channels'],
-                    },
-                }
+        let videoMetadata
 
-                resolve(videoMetadata)
+        try {
+            videoMetadata = await new Promise((resolve, reject) => {
+                ffmpeg.ffprobe(filePath, (error, metadata) => {
+                    if (error)
+                    {
+                        reject(error)
+                    }
+        
+                    metadata = metadata['streams']
+                    const videoMetadata = {
+                        video: {
+                            width: metadata[0]['width'],
+                            height: metadata[0]['height'],
+                            codec: metadata[0]['codec_name'],
+                            duration: Math.round(metadata[0]['duration']),
+                            bitRate: metadata[0]['bit_rate'],
+                            fps: parseFloat(metadata[0]['nb_frames'] / metadata[0]['duration']).toFixed(2),
+                        },
+                        audio: {
+                            codec: metadata[1]['codec_name'],
+                            duration: Math.round(metadata[1]['duration']),
+                            bitRate: metadata[1]['bit_rate'],
+                            channels: metadata[1]['channels'],
+                        },
+                    }
+    
+                    resolve(videoMetadata)
+                })
             })
-        })
+        } catch (error) {
+            logger.error('FFMpeg threw an error', error)
+            logger.debug(`Deleting torrent ${hash}`)
+            await qb.deleteTorrent(hash, true)
+        }
 
         const dotInfoFile = {
             version: 2,
