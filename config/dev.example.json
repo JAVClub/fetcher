@@ -7,6 +7,10 @@
             "driver": "RSS",
             "type": "MT",
             "url": "https://pt.m-team.cc/torrentrss.php?https=1&rows=50&cat410=1&isize=1&search=-&search_mode=1&linktype=dl&passkey=yourkeyhere"
+        },
+        {
+            "driver": "Onejav",
+            "url": "https://onejav.com/popular/"
         }
     ],
     "qbittorrent": {

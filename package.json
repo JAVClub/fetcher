@@ -15,7 +15,8 @@
     "object-hash": "^2.0.3",
     "p-retry": "^4.2.0",
     "parse-torrent": "^7.0.1",
-    "rss-parser": "^3.7.6"
+    "rss-parser": "^3.7.6",
+    "sha256": "^0.2.0"
   },
   "devDependencies": {},
   "scripts": {

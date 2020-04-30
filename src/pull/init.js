@@ -56,7 +56,7 @@ const contentHandler = async () => {
         logger.info(`Handling ${JAVID}, hash ${hash}`)
 
         if (size > 10) {
-            logger.info(`[${JAVID}] File oversize, skipped`)
+            logger.info(`[${JAVID}] File oversized, skipped`)
             continue
         }
 
@@ -143,6 +143,7 @@ runAndSetInterval(async () => {
 }, 60, 'Download queue', false)
 
 const driverRSS = require('./driver/rss')
+const driverOnejav = require('./driver/onejav')
 const driverStack = []
 
 const remoteList = config.get('remote')
@@ -159,6 +160,15 @@ for (const i in remoteList) {
                 const res = await driverStack[i].run()
                 return res
             }, item.interval, 'RSS: ' + i)
+            break
+
+        case 'OneJAV':
+            logger.info(`[${i}] Creating OneJAV driver stack`)
+            driverStack[i] = new driverOnejav(item.url)
+            runAndSetInterval(async () => {
+                const res = await driverStack[i].run()
+                return res
+            }, item.interval, 'OneJAV: ' + i)
             break
     }
 }
