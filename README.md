@@ -13,36 +13,7 @@
 
 ### Docker 安装
 
-```bash
-# 安装 Docker-ce
-curl https://get.docker.com | sudo bash
-
-# 安装 Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-# 下载项目
-git clone https://github.com/JAVClub/fetcher -b RSS
-cd fetcher
-
-# 配置项目 (参考非 Docker 中配置文件)
-cp config/dev.example.json dev.json
-vi config/dev.json
-
-# 配置 qBittorrent
-cp config/qbittorrent/qBittorrent/qBittorrent.example.conf config/qbittorrent/qBittorrent/qBittorrent.conf
-
-# 启动并进一步配置 qBittorrent
-sudo docker-compose up -d qbittorrent
-# qBittorrent 已在端口 8585 运行, 默认用户名/密码 admin/adminadmin
-
-# 启动项目
-# sudo docker-compose up -d
-```
-
-若使用 Docker 则默认配置中 qBittorrent 的地址可以不用更改, 仅需添加下载源即可
-
-下载保存的目录为 `./tmp/downloads`, 处理完保存的目录为 `./tmp/sync`, 使用 Docker 安装完成后仅需使用 `rclone move` 监听 `./tmp/sync` 目录即可
+请参考 [JAVClub/docker](https://github.com/JAVClub/docker/tree/master/fetcher) 项目
 
 ### 非 Docker
 
@@ -60,7 +31,7 @@ sudo docker-compose up -d qbittorrent
 直接 clone 加 npm i 一梭子
 
 ```bash
-git clone -b RSS https://github.com/JAVClub/fetcher.git
+git clone https://github.com/JAVClub/fetcher.git
 cd fetcher
 npm i
 ```
@@ -94,10 +65,10 @@ npm i
 }
 ```
 
-在 `config.json` 文件中填写你的服务器信息, 应该看一眼就明白了, 只对一些细节做解释
+在 `dev.json` 文件中填写你的服务器信息, 对一些细节做解释
 
 - **remote[]**
-  - **driver:** 目前支持 RSS /OneJAV 订阅
+  - **driver:** 目前支持 RSS / OneJAV 订阅
   - **type:** RSS 的解析方法 (仅在驱动为 RSS 时生效)
     - **MT:** MT 代表 PT 站 M-Team 的 RSS 格式; 具体: 以车牌号开头(XXX-0NN), 车牌号后紧跟空格, 以大小结尾([xx.xxG]), 可在 Nexus RSS 订阅中勾选包括大小得到
   - **url:** 订阅地址(OneJAV 直接填写列表页地址即可)
@@ -109,13 +80,13 @@ npm i
 
 目前将监测模式更改为了 qBittorrent 自带的指定条件自动暂停, 在使用前请在 qBittorrent 的选项 -> BitTorrent 中按照你的需求勾选做种限制中的任意一项(或两项一起)
 
-运行只需执行 `NODE_ENV=dev node src/app.js` 即可, 可以使用 systemd/pm2 等持久化运行工具
+运行只需执行 `NODE_ENV=dev node src/app.js` 即可, 可以使用 systemd/pm2 等持久化工具
 
-当种子处理完毕后, 脚本会自动将处理好的文件移植 `./tmp/sync` 目录, 只需要使用 `rclone move` 监听此目录即可
+当种子处理完毕后, 脚本会自动将处理好的文件移至 `./tmp/sync` 目录, 只需要使用 `rclone move` 监听此目录即可
 
 ## 捐赠
 
-这个项目虽然不算麻烦但还是挺繁琐的, 所以如果想请我喝一杯咖啡也是可以的哦
+这个项目虽然不算麻烦但还是挺繁琐的, 所以如果想请我喝一杯咖啡也是可以的
 
 用[爱发电](https://afdian.net/@isXiaoLin) (大雾
 
