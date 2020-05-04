@@ -21,10 +21,13 @@
 
 - 任意 Linux 发行版
 - Node.js 10+
-- qBittorrent
+- qBittorrent 4.2.1
 - rclone
 - ffmpeg
 - Your brain
+
+**只能使用 qBittorrent 4.2.1**, 原因是随着版本变动 API endpoint 也会不断变动, 所以只能选择一个版本, 而作者正好使用这个版本, 所以就确定是 4.2.1 了
+该版本对应的 Docker image 是 `linuxserver/qbittorrent:14.2.0.99201912180418-6819-118af03ubuntu18.04.1-ls62`, 已写入 docker-compose.yaml
 
 #### 安装
 
@@ -47,11 +50,13 @@ npm i
         {
             "driver": "RSS",
             "type": "MT",
-            "url": "https://pt.m-team.cc/torrentrss.php?https=1&rows=50&cat410=1&isize=1&search=-&search_mode=1&linktype=dl&passkey=yourkeyhere"
+            "url": "https://pt.m-team.cc/torrentrss.php?https=1&rows=50&cat410=1&isize=1&search=-&search_mode=1&linktype=dl&passkey=yourkeyhere",
+            "interval": 300
         },
         {
             "driver": "Onejav",
-            "url": "https://onejav.com/popular/"
+            "url": "https://onejav.com/popular/",
+            "interval": 300
         }
     ],
     "qbittorrent": {

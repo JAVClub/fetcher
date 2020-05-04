@@ -6,11 +6,13 @@
         {
             "driver": "RSS",
             "type": "MT",
-            "url": "https://pt.m-team.cc/torrentrss.php?https=1&rows=50&cat410=1&isize=1&search=-&search_mode=1&linktype=dl&passkey=yourkeyhere"
+            "url": "https://pt.m-team.cc/torrentrss.php?https=1&rows=50&cat410=1&isize=1&search=-&search_mode=1&linktype=dl&passkey=yourkeyhere",
+            "interval": 300
         },
         {
             "driver": "Onejav",
-            "url": "https://onejav.com/popular/"
+            "url": "https://onejav.com/popular/",
+            "interval": 300
         }
     ],
     "qbittorrent": {
