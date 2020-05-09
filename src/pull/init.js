@@ -170,5 +170,7 @@ for (const i in remoteList) {
                 return res
             }, item.interval, 'OneJAV: ' + i)
             break
+        default:
+            logger.warn(`Unknown driver ${item.driver}`)
     }
 }
