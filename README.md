@@ -54,7 +54,7 @@ npm i
             "interval": 300
         },
         {
-            "driver": "Onejav",
+            "driver": "OneJAV",
             "url": "https://onejav.com/popular/",
             "interval": 300
         }
