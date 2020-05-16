@@ -58,7 +58,8 @@ const process = async () => {
                 break
             }
         }
-        const filePath = item.save_path + videoFileInfo.name
+        const customPath = config.get('qbittorrent.savePath')
+        const filePath = (customPath || item.save_path) + videoFileInfo.name
 
         let videoMetadata
 
