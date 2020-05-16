@@ -1,4 +1,6 @@
-FROM node:13.8
+FROM node:13.8.0-alpine
+
+RUN apk add ffmpeg
 
 WORKDIR /usr/app
 
