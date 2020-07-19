@@ -68,7 +68,7 @@ class Onejav {
 
             processed.push({
                 hash,
-                JAVID: JAVID,
+                JAVID,
                 size,
                 torrentURL
             })

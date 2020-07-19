@@ -84,8 +84,7 @@ class RSS {
 
             processed.push({
                 hash,
-                JAVID: JAVID,
-                title,
+                JAVID,
                 size,
                 torrentURL
             })

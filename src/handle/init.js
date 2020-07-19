@@ -96,6 +96,7 @@ const process = async () => {
             logger.error('FFMpeg threw an error', error)
             logger.debug(`Deleting torrent ${hash}`)
             await qb.deleteTorrent(hash, true)
+            continue
         }
 
         const dotInfoFile = {

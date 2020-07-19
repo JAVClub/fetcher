@@ -19,7 +19,7 @@ const handleContent = (content) => {
 }
 
 const runAndSetInterval = async (fn, time, name, handle = true) => {
-    logger.debug(`[${name}] Starting job`)
+    logger.info(`[${name}] Starting job`)
     try {
         const content = await fn()
         if (handle) handleContent(content)
