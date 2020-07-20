@@ -1,6 +1,6 @@
 {
     "system": {
-        "logLevel": "debug"
+        "logLevel": "info"
     },
     "remote": [
         {
