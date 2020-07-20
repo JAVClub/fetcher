@@ -3,48 +3,91 @@ const fs = require('fs')
 const path = require('path')
 const fetch = require('node-fetch')
 const pRetry = require('p-retry')
+const db = require('./../module/db')
 const javbus = require('./../module/javbus')
 const config = require('./../module/config')
 const qb = require('./../module/qbittorrent')
-const db = require('./../module/database')
 const parseTorrent = require('parse-torrent')
 const logger = require('./../module/logger')('Pull: Init')
+const runAndSetInterval = require('./../module/runAndSetInterval')
 
-const handleContent = (content) => {
+let contentList = []
+let processedList = []
+
+function addContent (content) {
+  contentList = contentList.concat(content)
+}
+
+function handleContent () {
   logger.debug('Handling content')
 
-  content = _.uniqBy(content, 'hash')
-  const oriDb = db.get('contents').uniqBy('hash').value()
+  let data = JSON.parse(JSON.stringify(contentList))
+  contentList = []
 
-  db.get('contents').assign(_.unionBy(content, oriDb, 'hash')).write()
+  data = _.uniqBy(data, 'hash')
+
+  const noNeed = _.unionBy(db.downloaded, db.queue, 'hash')
+  data = _.differenceBy(data, noNeed, 'hash')
+
+  processedList = data
 }
 
-const runAndSetInterval = async (fn, time, name, handle = true) => {
-  logger.info(`[${name}] Starting job`)
-  try {
-    const content = await fn()
-    if (handle) handleContent(content)
-  } catch (error) {
-    logger.error(`[${name}] Job threw an error`, error)
+/**
+ * Pull queue filler
+ */
+const DriverRSS = require('./driver/rss')
+const DriverOnejav = require('./driver/onejav')
+const driverStack = []
+
+const remoteList = config.get('remote')
+logger.info('Remote list', remoteList)
+
+for (const i in remoteList) {
+  const item = remoteList[i]
+
+  switch (item.driver) {
+  case 'RSS':
+    logger.debug(`[${i}] Creating RSS driver stack`)
+    driverStack[i] = new DriverRSS(item.url, item.type)
+    runAndSetInterval(async () => {
+      const res = await driverStack[i].run()
+      return res
+    }, item.interval, 'RSS: ' + i, addContent)
+    break
+
+  case 'OneJAV':
+    logger.debug(`[${i}] Creating OneJAV driver stack`)
+    driverStack[i] = new DriverOnejav(item.url)
+    runAndSetInterval(async () => {
+      const res = await driverStack[i].run()
+      return res
+    }, item.interval, 'OneJAV: ' + i, addContent)
+    break
+  default:
+    logger.warn(`Unknown driver ${item.driver}`)
   }
-  logger.info(`[${name}] Job finished, setting timer`)
-
-  setTimeout(() => {
-    runAndSetInterval(fn, time, name, handle)
-  }, time * 1000)
 }
 
-const contentHandler = async () => {
-  const dbContent = db.get('contents').value()
-  const downloaded = db.get('downloaded').value()
-  const processed = db.get('processed').value()
+/**
+ * Pull queue handler
+ */
+runAndSetInterval(async () => {
+  await contentHandler()
+}, 60, 'Download queue')
 
-  const noNeed = _.unionBy(downloaded, processed, 'hash')
-  const final = _.differenceBy(dbContent, noNeed, 'hash')
+function skipItem (msg = '') {
+  logger.info(msg)
+}
+
+async function contentHandler () {
+  const list = JSON.parse(JSON.stringify(processedList))
+
+  const noNeed = _.unionBy(db.downloaded, db.queue, 'hash')
+  const final = _.differenceBy(list, noNeed, 'hash')
 
   await qb.addNewCategory('JAVClub')
 
-  const tmpFolder = path.join(__dirname, '/../../tmp/torrents')
+  const tmpFolder = path.join(__dirname, '../../tmp/torrents')
 
   for (const i in final) {
     const item = final[i]
@@ -54,44 +97,44 @@ const contentHandler = async () => {
     const size = item.size
     const hash = item.hash
 
-    logger.info(`Handling ${JAVID}, hash ${hash}`)
+    logger.info(`Handling ${JAVID}'s torrent, hash ${hash}`)
 
     if (size > 10) {
-      logger.info(`[${JAVID}] File oversized, skipped`)
+      skipItem(`[${JAVID}] File oversized, skipped`)
       continue
     }
 
-    if (!db.get('metadatas').find({ JAVID }).value()) {
-      const JAVinfo = await javbus(JAVID)
-      if (!JAVinfo) {
-        logger.warn(`[${JAVID}] JAV info invalid, skipped`)
-        continue
-      }
-
-      JAVinfo.JAVID = JAVID
-
-      db.get('metadatas').push(JAVinfo).write()
+    const JAVinfo = await javbus(JAVID)
+    if (!JAVinfo) {
+      skipItem(`[${JAVID}] JAV info invalid, skipped`)
+      continue
     }
+    JAVinfo.JAVID = JAVID
+    item.metadata = JAVinfo
 
     const torrentFilePath = `${tmpFolder}/${hash}.torrent`
 
     if (!fs.existsSync(torrentFilePath)) {
-      const res = await pRetry(async () => {
-        const res = await fetch(torrentURL)
+      let res
+      try {
+        res = await pRetry(async () => {
+          const result = await fetch(torrentURL)
 
-        return res
-      }, {
-        onFailedAttempt: async (error) => {
-          logger.error(`Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left`)
-
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve()
-            }, 10000)
-          })
-        },
-        retries: 5
-      })
+          return result
+        }, {
+          onFailedAttempt: async () => {
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve()
+              }, 5000)
+            })
+          },
+          retries: 5
+        })
+      } catch (e) {
+        skipItem(`[${JAVID}] Download torrent failed, skipped`)
+        continue
+      }
 
       await new Promise((resolve, reject) => {
         const fileStream = fs.createWriteStream(torrentFilePath + '.tmp')
@@ -101,18 +144,25 @@ const contentHandler = async () => {
         })
 
         fileStream.on('finish', () => {
-          resolve()
           fs.renameSync(torrentFilePath + '.tmp', torrentFilePath)
+          resolve()
         })
       })
     }
 
     logger.debug(`[${JAVID}] Parsing torrent info`)
-    const torrentInfo = parseTorrent(fs.readFileSync(torrentFilePath))
-    if (!torrentInfo.files) {
-      logger.warn(`[${JAVID}] Torrent invalid, skipped`)
-      continue
+    let torrentInfo
+    try {
+      torrentInfo = parseTorrent(fs.readFileSync(torrentFilePath))
+      fs.unlinkSync(torrentFilePath)
+      if (!torrentInfo.files) {
+        skipItem(`[${JAVID}] Torrent invalid, skipped`)
+        continue
+      }
+    } catch (e) {
+      skipItem(`[${JAVID}] Parse torrent failed, skipped`)
     }
+    item.hash = torrentInfo.infoHash
 
     let videoFileCount = 0
 
@@ -126,52 +176,14 @@ const contentHandler = async () => {
     }
 
     if (videoFileCount !== 1) {
-      logger.info(`[${JAVID}] Torrent has no video file or has multiple video files, skipped`)
+      skipItem(`[${JAVID}] Torrent has no video file or has multiple video files, skipped`)
       continue
     }
 
-    logger.debug(`[${JAVID}] Adding to qbittorrent`)
+    logger.info(`[${JAVID}] Adding to qBittorrent`)
     await qb.addTorrentLink(torrentURL)
 
-    db.get('processed').push({
-      hash
-    }).write()
+    db.queue.push(item)
   }
-}
-
-runAndSetInterval(async () => {
-  await contentHandler()
-}, 60, 'Download queue', false)
-
-const DriverRSS = require('./driver/rss')
-const DriverOnejav = require('./driver/onejav')
-const driverStack = []
-
-const remoteList = config.get('remote')
-logger.debug('Remote list', remoteList)
-
-for (const i in remoteList) {
-  const item = remoteList[i]
-
-  switch (item.driver) {
-  case 'RSS':
-    logger.info(`[${i}] Creating RSS driver stack`)
-    driverStack[i] = new DriverRSS(item.url, item.type)
-    runAndSetInterval(async () => {
-      const res = await driverStack[i].run()
-      return res
-    }, item.interval, 'RSS: ' + i)
-    break
-
-  case 'OneJAV':
-    logger.info(`[${i}] Creating OneJAV driver stack`)
-    driverStack[i] = new DriverOnejav(item.url)
-    runAndSetInterval(async () => {
-      const res = await driverStack[i].run()
-      return res
-    }, item.interval, 'OneJAV: ' + i)
-    break
-  default:
-    logger.warn(`Unknown driver ${item.driver}`)
-  }
+  handleContent()
 }

@@ -62,8 +62,8 @@ class Qbittorrent {
   async getTorrentList () {
     logger.info('Getting torrent list')
 
-    const apiURI = '/api/v2/torrents/info?limit='
-    const uri = apiURI + config.get('handler.queueNum') + '&category=JAVClub&filter=paused&sort=completion_on&reverse=true'
+    const apiURI = '/api/v2/torrents/info?limit=10'
+    const uri = apiURI + '&category=JAVClub&filter=paused&sort=completion_on&reverse=true'
 
     const result = await this.sendRequest(uri)
     return result

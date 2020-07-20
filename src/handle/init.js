@@ -1,50 +1,46 @@
+const _ = require('lodash')
 const fs = require('fs')
 const path = require('path')
-const objHash = require('object-hash')
+const objectHash = require('object-hash')
 const config = require('./../module/config')
 const qb = require('./../module/qbittorrent')
-const db = require('./../module/database')
+const db = require('./../module/db')
 const ffmpeg = require('fluent-ffmpeg')
 const logger = require('./../module/logger')('Handle: Init')
+const runAndSetInterval = require('./../module/runAndSetInterval')
 
-const runAndSetInterval = async (fn, time) => {
-  logger.debug('[Check torrent status] Starting job')
-  try {
-    await fn()
-  } catch (error) {
-    logger.error('[Check torrent status] Job threw an error', error)
-  }
-  logger.info('[Check torrent status] Job finished, setting timer')
+runAndSetInterval(async () => {
+  await process()
+}, 60, 'Check torrent status')
 
-  setTimeout(() => {
-    runAndSetInterval(fn, time)
-  }, time * 1000)
+async function removeTorrent (hash, removeFile = true) {
+  logger.debug(`Deleting torrent ${hash}`)
+  await qb.deleteTorrent(hash, removeFile)
+
+  db.downloaded.push({ hash })
 }
 
-const process = async () => {
+async function process () {
   const torrentList = await qb.getTorrentList()
 
   for (const i in torrentList) {
     const item = torrentList[i]
     const hash = item.hash
 
-    const JAVcontent = db.get('contents').find({ hash }).value()
-    logger.debug('JAV torrent content', JAVcontent)
+    const queueInfo = _.find(db.queue, { hash })
+    logger.debug('JAV queue info', queueInfo)
 
-    if (!JAVcontent) {
+    if (!queueInfo) {
       logger.error('Torrent info not found')
 
-      logger.debug(`Deleting torrent ${hash}`)
-      await qb.deleteTorrent(hash, true)
-
-      db.get('downloaded').push({ hash }).write()
-
+      await removeTorrent(hash)
       continue
     }
 
-    const JAVinfo = db.get('metadatas').find({ JAVID: JAVcontent.JAVID }).value()
+    const JAVinfo = queueInfo.metadata
     if (!JAVinfo) {
-      logger.error(`[${JAVcontent.JAVID}] JAV info not found`)
+      logger.error(`[${queueInfo.JAVID}] JAV info not found`)
+      await removeTorrent(hash)
       continue
     }
 
@@ -58,6 +54,13 @@ const process = async () => {
         break
       }
     }
+    if (!videoFileInfo) {
+      logger.warn('No matched video file for', hash)
+      await removeTorrent(hash)
+      continue
+    }
+
+    console.log(queueInfo, JAVinfo)
     const customPath = config.get('qbittorrent.savePath')
     const filePath = (customPath || item.save_path) + videoFileInfo.name
 
@@ -66,8 +69,9 @@ const process = async () => {
     try {
       videoMetadata = await new Promise((resolve, reject) => {
         ffmpeg.ffprobe(filePath, (error, metadata) => {
-          if (error || !metadata) {
+          if (error) {
             reject(error)
+            return
           }
 
           metadata = metadata.streams
@@ -93,14 +97,13 @@ const process = async () => {
       })
     } catch (error) {
       logger.error('FFMpeg threw an error', error)
-      logger.debug(`Deleting torrent ${hash}`)
-      await qb.deleteTorrent(hash, true)
+      await removeTorrent(hash)
       continue
     }
 
     const dotInfoFile = {
       version: 2,
-      JAVID: JAVcontent.JAVID,
+      JAVID: queueInfo.JAVID,
       videoMetadata: videoMetadata,
       JAVMetadata: JAVinfo,
       processTime: (new Date()).getTime(),
@@ -110,7 +113,7 @@ const process = async () => {
 
     logger.debug('info.json content', dotInfoFile)
 
-    const fileHash = objHash(dotInfoFile)
+    const fileHash = objectHash(dotInfoFile)
     const dirName = path.join(__dirname, `../../tmp/sync/${fileHash.substr(0, 2)}/`, `${fileHash.substr(-2, 2)}/`, `${fileHash}/`)
     fs.mkdirSync(dirName, { recursive: true })
     fs.writeFileSync(dirName + 'info.json', JSON.stringify(dotInfoFile))
@@ -118,13 +121,8 @@ const process = async () => {
     logger.debug(`Moving ${filePath} to ${dirName}video.mp4`)
     fs.renameSync(filePath, dirName + 'video.mp4')
 
-    logger.debug(`Deleting torrent ${hash}`)
-    await qb.deleteTorrent(hash)
+    await removeTorrent(hash, false)
 
-    db.get('downloaded').push({ hash }).write()
+    db.downloaded.push({ hash })
   }
 }
-
-runAndSetInterval(async () => {
-  await process()
-}, 60)

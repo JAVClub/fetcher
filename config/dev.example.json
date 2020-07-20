@@ -20,8 +20,5 @@
         "username": "admin",
         "password": "adminadmin",
         "savePath": ""
-    },
-    "handler": {
-        "queueNum": 5
     }
 }
