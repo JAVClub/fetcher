@@ -28,6 +28,7 @@ async function process () {
     const hash = item.hash
 
     const queueInfo = _.find(db.queue, { hash })
+    logger.info('Processing torrent', hash)
     logger.debug('JAV queue info', queueInfo)
 
     if (!queueInfo) {
@@ -39,7 +40,7 @@ async function process () {
 
     const JAVinfo = queueInfo.metadata
     if (!JAVinfo) {
-      logger.error(`[${queueInfo.JAVID}] JAV info not found`)
+      logger.warn(`[${queueInfo.JAVID}] JAV info not found`)
       await removeTorrent(hash)
       continue
     }
@@ -124,5 +125,6 @@ async function process () {
     await removeTorrent(hash, false)
 
     db.downloaded.push({ hash })
+    logger.info('Torrent', hash, 'processed!')
   }
 }

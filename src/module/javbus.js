@@ -19,7 +19,7 @@ module.exports = async (JAVID) => {
     return res
   }, {
     onFailedAttempt: async (error) => {
-      logger.error(`Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left`)
+      logger.debug(`Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left`)
 
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -105,7 +105,7 @@ module.exports = async (JAVID) => {
     s = s.getElementsByTagName('a')
     for (const i in s) {
       const item = s[i]
-      console.log(item.attributes)
+      logger.debug(item.attributes)
       if (item.attributes[1]) data.screenshots.push(item.attributes[1].value)
     }
   }

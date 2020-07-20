@@ -32,7 +32,7 @@ class Qbittorrent {
 
         this.__cookie_value = cookieHeader.split(';')[0]
 
-        logger.info('Cookie: ' + this.__cookie_value)
+        logger.debug('Cookie: ' + this.__cookie_value)
 
         return this.__cookie_value
       } else {
@@ -60,7 +60,7 @@ class Qbittorrent {
   }
 
   async getTorrentList () {
-    logger.info('Getting torrent list')
+    logger.debug('Getting torrent list')
 
     const apiURI = '/api/v2/torrents/info?limit=10'
     const uri = apiURI + '&category=JAVClub&filter=paused&sort=completion_on&reverse=true'
@@ -70,7 +70,7 @@ class Qbittorrent {
   }
 
   async getTorrentInfo (hash) {
-    logger.info('Getting torrent ' + hash + ' info')
+    logger.debug('Getting torrent ' + hash + ' info')
 
     const uri = '/api/v2/torrents/properties?hash=' + hash
 
@@ -79,7 +79,7 @@ class Qbittorrent {
   }
 
   async getTorrentContent (hash) {
-    logger.info('Getting torrent ' + hash + ' content')
+    logger.debug('Getting torrent ' + hash + ' content')
 
     const uri = '/api/v2/torrents/files?hash=' + hash
 
@@ -88,7 +88,7 @@ class Qbittorrent {
   }
 
   async addTorrentLink (url) {
-    logger.info('Adding new torrent', url)
+    logger.debug('Adding new torrent', url)
 
     const uri = '/api/v2/torrents/add'
     const body = new URLSearchParams()
@@ -104,7 +104,7 @@ class Qbittorrent {
   }
 
   async addNewCategory (name) {
-    logger.info('Adding category ' + name)
+    logger.debug('Adding category ' + name)
 
     const uri = '/api/v2/torrents/createCategory'
     const body = new URLSearchParams()
@@ -120,7 +120,7 @@ class Qbittorrent {
   }
 
   async pauseTorrent (hash) {
-    logger.info('Pausing torrent ' + hash)
+    logger.debug('Pausing torrent ' + hash)
 
     const uri = '/api/v2/torrents/pause'
     const body = new URLSearchParams()
@@ -135,7 +135,7 @@ class Qbittorrent {
   }
 
   async resumeTorrent (hash) {
-    logger.info('Resuming torrent ' + hash)
+    logger.debug('Resuming torrent ' + hash)
 
     const uri = '/api/v2/torrents/resume'
     const body = new URLSearchParams()
@@ -150,7 +150,7 @@ class Qbittorrent {
   }
 
   async deleteTorrent (hash, deleteFiles = false) {
-    logger.info('Deleting torrent ' + hash)
+    logger.debug('Deleting torrent ' + hash)
 
     const uri = '/api/v2/torrents/delete'
     const body = new URLSearchParams()
