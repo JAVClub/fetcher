@@ -44,7 +44,7 @@ npm i
 ```json
 {
     "system": {
-        "logLevel": "debug"
+        "logLevel": "info"
     },
     "remote": [
         {
@@ -64,9 +64,6 @@ npm i
         "username": "admin",
         "password": "adminadmin",
         "savePath": ""
-    },
-    "handler": {
-        "queueNum": 5
     }
 }
 ```
@@ -79,8 +76,7 @@ npm i
     - **MT:** MT 代表 PT 站 M-Team 的 RSS 格式; 具体: 以车牌号开头(XXX-0NN), 车牌号后紧跟空格, 以大小结尾([xx.xxG]), 可在 Nexus RSS 订阅中勾选包括大小得到
   - **url:** 订阅地址(OneJAV 直接填写列表页地址即可)
 - **qbittorrent**
-  - **savePath:** 下载文件保存路径, 非 Docker 使用留空即可, 若使用 `JAVClub/docker` 部署填写 `/usr/app/tmp/downloads/JAVClub/` 即可
-- **handler.queueNum:** 处理器一次抓取的种子数量, 保持默认即可
+  - **savePath:** 下载文件保存路径, 非 Docker 使用留空即可, 若使用 [JAVClub/docker](https://github.com/JAVClub/docker) 部署则填写 `/usr/app/tmp/downloads/JAVClub/` 即可
 
 #### 运行
 
