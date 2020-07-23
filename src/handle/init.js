@@ -27,7 +27,7 @@ async function process () {
     const item = torrentList[i]
     const hash = item.hash
 
-    const queueInfo = _.find(db.queue, { hash })
+    const queueInfo = _.find(db.queue, { torrentHash: hash })
     logger.info('Processing torrent', hash)
     logger.debug('JAV queue info', queueInfo)
 
@@ -143,7 +143,7 @@ async function process () {
 
     await removeTorrent(hash, false)
 
-    db.downloaded.push({ hash })
+    db.downloaded.push({ hash: queueInfo.hash })
     logger.info('Torrent', hash, 'processed!')
   }
 }

@@ -80,10 +80,7 @@ function skipItem (msg = '') {
 }
 
 async function contentHandler () {
-  const list = JSON.parse(JSON.stringify(processedList))
-
-  const noNeed = _.unionBy(db.downloaded, db.queue, 'hash')
-  const final = _.differenceBy(list, noNeed, 'hash')
+  const final = JSON.parse(JSON.stringify(processedList))
 
   await qb.addNewCategory('JAVClub')
 
@@ -162,7 +159,7 @@ async function contentHandler () {
     } catch (e) {
       skipItem(`[${JAVID}] Parse torrent failed, skipped`)
     }
-    item.hash = torrentInfo.infoHash
+    item.torrentHash = torrentInfo.infoHash
 
     let videoFileCount = 0
 
