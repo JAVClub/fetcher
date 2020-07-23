@@ -76,6 +76,25 @@ async function process () {
           }
 
           metadata = metadata.streams
+          if (!metadata[0] || !metadata[1]) {
+            resolve({
+              video: {
+                width: 0,
+                height: 0,
+                codec: '',
+                duration: 0,
+                bitRate: 0,
+                fps: 0
+              },
+              audio: {
+                codec: '',
+                duration: 0,
+                bitRate: 0,
+                channels: 0
+              }
+            })
+            return
+          }
           const videoMetadata = {
             video: {
               width: metadata[0].width,
