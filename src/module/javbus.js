@@ -112,9 +112,18 @@ module.exports = async (JAVID) => {
 
   logger.debug(JAVID, data)
 
-  if (!data || !data.tags.length || !data.stars.length) {
+  if (!data || !data.tags.length) {
     logger.warn('Invalid info for', data)
     return
+  }
+  
+  if (!data.stars.length) {
+    data.stars = [
+      {
+        name: '素人',
+        img: 'https://pics.dmm.co.jp/mono/actjpgs/nowprinting.gif'
+      }
+    ]
   }
 
   return data
