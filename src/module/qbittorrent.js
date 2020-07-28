@@ -63,7 +63,7 @@ class Qbittorrent {
     logger.debug('Getting torrent list')
 
     const apiURI = '/api/v2/torrents/info?limit=10'
-    const uri = apiURI + '&category=JAVClub&filter=paused&sort=completion_on&reverse=true'
+    const uri = apiURI + '&category=JAVClub&filter=completed&sort=completion_on&reverse=true'
 
     const result = await this.sendRequest(uri)
     return result

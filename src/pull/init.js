@@ -56,12 +56,14 @@ for (const i in remoteList) {
     break
 
   case 'OneJAV':
-    logger.debug(`[${i}] Creating OneJAV driver stack`)
-    driverStack[i] = new DriverOnejav(item.url)
-    runAndSetInterval(async () => {
-      const res = await driverStack[i].run()
-      return res
-    }, item.interval, 'OneJAV: ' + i, addContent)
+    for (t = 1; t <= item.pages; t++) {
+      logger.debug(`[${i}-${t}] Creating OneJAV driver stack`)
+      driverStack[i] = new DriverOnejav(item.url + `?page=${t}`)
+      runAndSetInterval(async () => {
+        const res = await driverStack[i].run()
+        return res
+      }, item.interval, 'OneJAV: ' + `${i}-${t}`, addContent)
+    }
     break
   default:
     logger.warn(`Unknown driver ${item.driver}`)
