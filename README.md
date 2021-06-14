@@ -1,6 +1,9 @@
 # JAVClub fetcher
 🔞 Data fetcher for JAVClub core
 
+❗ | **因架构调整，本项目已不再维护并将存档。新项目将支持泛媒体文件管理，相关开发工作将迁移至 [@UsagiHouse](https://github.com/UsagiHouse) 进行，请知悉**
+:---: | :---
+
 ## 简介
 
 这是一个涩情(划掉) Repo，用来配合涩情(划掉)核心工作
