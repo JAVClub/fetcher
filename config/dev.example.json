@@ -12,7 +12,8 @@
         {
             "driver": "OneJAV",
             "url": "https://onejav.com/popular/",
-            "interval": 300
+            "interval": 300,
+            "pages" : 5
         }
     ],
     "qbittorrent": {
